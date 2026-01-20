@@ -51,3 +51,7 @@ def index():
 
     # envoi des données à la page HTML index.html
     return render_template('index.html', clients=clients)
+
+# lancement de l'application Flask
+if __name__ == '__main__':
+    app.run(debug=True)
