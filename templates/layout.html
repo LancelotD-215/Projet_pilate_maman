@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr"> <!-- Corps du html, fr pour le référencement en français -->
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion clients pilate</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Pour le responsive design (adaptation aux différentes tailles d'écran) -->
+    <title>Gestion clients pilate</title> <!-- Titre de la page -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> <!-- Lien vers le CSS de Bootstrap -->
 </head>
-<body class="bg-light">
+<body class="bg-light"> <!-- Class Bootstrap pour un fond clair -->
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">🧘 Pilates Coach</a>
-        </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow"> <!-- Barre de navigation avec class Bootstrap : fond bleu, texte blanc, marge de 4, ombre -->
+        <div class="container"> <!-- Conteneur Bootstrap pour centrer le contenu -->
+            <a class="navbar-brand fw-bold" href="/">Pilate Coach Gestion</a> <!-- Lien vers la page d'accueil avec le nom du site, texte en gras -->
+        </div>  
     </nav>
 
     <div class="container">
-        {% block content %}{% endblock %}
+        {% block content %}{% endblock %} <!-- Bloc de contenu qui sera remplacé par le contenu spécifique de chaque page -->
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> <!-- Lien vers le JS de Bootstrap -->
 </body>
 </html>
