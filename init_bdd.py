@@ -12,7 +12,7 @@ print("Début du programme.")
 import sqlite3 # pour gérer la bdd SQLite
 
 # connexion à la base de données (ou création si elle n'existe pas)
-connection = sqlite3.connect('clients.db') # connexion à la bdd
+connection = sqlite3.connect('database_clients.db') # connexion à la bdd
 print("Base de données connectée avec succès.")
 
 # execution du shema de la base de données
