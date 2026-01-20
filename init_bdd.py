@@ -6,15 +6,19 @@ description : code d'initialisation de la base de données
 date : 2026/01/20
 """
 
+print("Début du programme.")
+
 # import des modules
 import sqlite3 # pour gérer la bdd SQLite
 
 # connexion à la base de données (ou création si elle n'existe pas)
-connection = sqlite3.connect('pilate_maman.db')
+connection = sqlite3.connect('clients.db') # connexion à la bdd
+print("Base de données connectée avec succès.")
 
 # execution du shema de la base de données
 with open('schema.sql') as f:
     connection.executescript(f.read()) # exécution du script SQL
+print("Schéma de la base de données créé avec succès.")
 
 # ajout de données test 
 curseur = connection.cursor() # création d'un curseur (stylo pour écrire) pour exécuter des commandes SQL
@@ -22,9 +26,13 @@ curseur = connection.cursor() # création d'un curseur (stylo pour écrire) pour
 # création d'utilisateurs test
 curseur.execute("INSERT INTO clients (prenom, nom, seances_restantes) VALUES (?, ?, ?)", ('Lancelot', 'Du Lac', 5)) # ? remplacés par tuple (pour contrer les injections SQL)
 curseur.execute("INSERT INTO clients (prenom, nom, seances_restantes) VALUES (?, ?, ?)", ('Guenièvre', 'La Belle', 3)) 
+print("Utilisateurs test insérés avec succès.")
 
 # validation des changements
 connection.commit()
 
 # fermeture de la connexion
 connection.close()
+
+print("Connexion à la base de données fermée.")
+print("Fin du programme.")
