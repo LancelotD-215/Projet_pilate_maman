@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Ajouter un nouveau client</h4>
+            </div>
+            <div class="card-body">
+                
+                <form method="post">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Prénom</label>
+                        <input type="text" class="form-control" name="prenom" placeholder="Ex: Arthur" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nom</label>
+                        <input type="text" class="form-control" name="nom" placeholder="Ex: Pendragon" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de séances initiales</label>
+                        <input type="number" class="form-control" name="seances_initiales" value="10" min="0" required>
+                        <div class="form-text">Combien de séances achète-t-il pour commencer ?</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">Créer le client</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="/" class="text-muted">Annuler</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

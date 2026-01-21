@@ -52,6 +52,7 @@ def index():
     # envoi des données à la page HTML index.html
     return render_template('index.html', clients=clients)
 
+
 @app.route('/presence', methods=['GET', 'POST']) # pour accepter les requêtes GET et POST
 def presence():
     """
@@ -103,6 +104,56 @@ def presence():
         clients = connection.execute('SELECT * FROM clients').fetchall()
         connection.close()
         return render_template('presence.html', clients=clients)
+
+
+@app.route('/ajout_client', methods=['GET', 'POST'])
+def ajout_client():
+    """
+    Fonction exécutée lors de l'accès à la page '/ajout_client'.
+    Args:
+        None
+    Returns:
+        str: rendu HTML de la page d'ajout de client.
+    """
+    # connexion à la base de données
+    connection = get_db_connection()
+    
+    if request.method == "POST": # si l'utilisateur a soumis le formulaire (POST)
+        # récupération des données du formulaire
+        prenom = request.form['prenom'].strip().title()
+        nom = request.form['nom'].strip().title() 
+        seances_initiales = int(request.form['seances_initiales'])
+
+        # vérification si le client existe déjà
+        existing_client = connection.execute('SELECT * FROM clients WHERE prenom = ? AND nom = ?', (prenom, nom)).fetchone()
+
+        if existing_client:
+            connection.close()
+            return (f"<h1>Erreur : Le client '{prenom} {nom}' existe déjà.</h1><p>Veuillez vérifier les informations et réessayer.</p><a href='/ajout_client'>Réessayer</a>")
+        
+        else:
+            # curseur pour récupérer l'ID du nouveau client
+            curseur = connection.execute('INSERT INTO clients (prenom, nom, seances_restantes) VALUES (?, ?, ?)',(prenom, nom, seances_initiales))
+            
+            # récupération de l'ID du nouveau client
+            nouveau_client_id = curseur.lastrowid
+
+            # ajout dans historique seances
+            connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)',(nouveau_client_id, 'CREATION_COMPTE', seances_initiales))
+
+            # commit des changements
+            connection.commit() 
+            connection.close()
+
+            # renvoie de l'utilisateur vers l'accueil
+            return redirect(url_for('index'))
+
+    if request.method == "GET" :
+        connection.close()
+        # affichage du formulaire d'ajout de client
+        return render_template('ajout_client.html')
+
+
 
 # lancement de l'application Flask
 if __name__ == '__main__':
