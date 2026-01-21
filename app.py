@@ -2,7 +2,7 @@
 """
 author: @lancelot
 name : app.py
-description : 
+description : code principal de l'application Flask pour la gestion des clients de Pilates
 date : 2026/01/20
 """
 
@@ -10,51 +10,10 @@ date : 2026/01/20
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
+from app_lib import get_db_connection, get_best_clients, get_client_most_remaining
 
 # création de l'application Flask
 app = Flask(__name__) # création du site web
-
-def get_db_connection():
-    """
-    Fonction de connexion à la base de données.
-    Appelée à chaque requête pour lire ou écrire des données.
-    Args:
-        None
-    Returns:
-        sqlite3.Connection: lien de connexion à la base de données.
-    """
-    # connection à la base de données
-    connection = sqlite3.connect('database_clients.db')
-
-    # pour accéder aux colonnes par nom et non par index
-    connection.row_factory = sqlite3.Row
-    return connection
-
-def get_best_clients(since_date):
-    """
-    Fonction pour récupérer le meilleur client depuis une date donnée. (celui qui a utilisé le plus de séances)
-    Args:
-        since_date (str): date au format 'YYYY-MM-DD' pour filtrer les actions.
-    Returns:
-        list: liste des clients avec le nombre de séances utilisées.
-    """
-    connection = get_db_connection()
-
-    actual_date = datetime.now().strftime('%Y-%m-%d') # date actuelle au format 'YYYY-MM-DD'
-    query = """
-        SELECT c.prenom, c.nom, COUNT(h.id) AS seances_utilisees
-        FROM historique_seances h
-        JOIN clients c ON h.client_id = c.id
-        WHERE h.action = 'CHECK-IN' 
-        AND DATE(h.date_heure) BETWEEN ? AND ?
-        GROUP BY c.id
-        ORDER BY seances_utilisees DESC
-        LIMIT 1;  
-    """
-
-    result = connection.execute(query, (since_date, actual_date)).fetchall()
-    connection.close()
-    return result
 
 
 
@@ -76,15 +35,17 @@ def index():
     clients = connection.execute('SELECT * FROM clients').fetchall()
 
     # ajout du meilleur client du mois
-    acutal_date = datetime.now().strftime('%Y-%m-%d')
-    first_day_of_month = acutal_date[:8] + '01' # premier jour du mois courant
+    actual_date = datetime.now().strftime('%Y-%m-%d')
+    first_day_of_month = actual_date[:8] + '01' # premier jour du mois courant
     best_clients = get_best_clients(first_day_of_month) # du mois courant
+    #best_clients_all_time = get_best_clients('2000-01-01') # depuis le début
+    client_most_remaining = get_client_most_remaining()
 
     # fermeture de la connexion à la base de données
     connection.close()
 
     # envoi des données à la page HTML index.html
-    return render_template('index.html', clients=clients, best_clients=best_clients)
+    return render_template('index.html', clients=clients, best_clients=best_clients, client_most_remaining=client_most_remaining)
 
 
 @app.route('/presence', methods=['GET', 'POST']) # pour accepter les requêtes GET et POST

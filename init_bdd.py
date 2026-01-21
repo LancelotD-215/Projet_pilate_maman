@@ -26,6 +26,10 @@ curseur = connection.cursor() # création d'un curseur (stylo pour écrire) pour
 # création d'utilisateurs test
 curseur.execute("INSERT INTO clients (prenom, nom, seances_restantes) VALUES (?, ?, ?)", ('Lancelot', 'Du Lac', 5)) # ? remplacés par tuple (pour contrer les injections SQL)
 curseur.execute("INSERT INTO clients (prenom, nom, seances_restantes) VALUES (?, ?, ?)", ('Guenièvre', 'La Belle', 3)) 
+# utilisation d'une séance test
+curseur.execute("INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)", (1, 'CHECK-IN', 1))
+curseur.execute("UPDATE clients SET seances_restantes = seances_restantes - 1 WHERE id = ?", (1,))
+
 print("Utilisateurs test insérés avec succès.")
 
 # validation des changements

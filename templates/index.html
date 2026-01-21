@@ -5,20 +5,45 @@
     <h1 class="display-4">Accueil</h1> <!-- Titre principal, display-4 pour une grande taille de texte -->
     <p class="lead text-muted">Gestion des séances de pilates</p> <!-- Texte secondaire, lead pour un texte plus grand, text-muted pour une couleur grise -->
 </div>
+
 {% if best_clients %} <!-- Si la variable best_clients existe et n'est pas vide -->
-<div class="row justify-content-center mb-4"> <!-- Ligne Bootstrap pour aligner les colonnes au centre, marge basse de 4 -->
-    <div class="col-md-8"> <!-- Colonne de taille moyenne (8/12), md pour medium sur les écrans moyens -->
+<div class="row mb-4"> <!-- Ligne Bootstrap pour aligner les colonnes, marge basse de 4 -->
+    <div class="col-lg-6 col-md-12"> <!-- Colonne de 6/12 sur grands écrans, pleine largeur sur moyens -->
         <div class="card shadow-sm"> <!-- Carte Bootstrap (zone encadrée), et ombre légère (sm pour small) -->
             <div class="card-header bg-warning text-dark"> <!-- En-tête de la carte avec fond jaune et texte noir -->
                 <h4 class="mb-0">Meilleur client du mois</h4>
             </div>
             <div class="card-body">
                 <ul class="list-group list-group-flush"> <!-- Liste Bootstrap sans bordures entre les éléments -->
-                    {% for client in best_clients %} <!-- Boucle sur la liste des meilleurs clients passée depuis le backend -->
+                    {% if best_clients %} <!-- Si un client a été trouvé -->
                     <li class="list-group-item">
-                        {{ client['prenom'] }} {{ client['nom'] }} - {{ client['seances_utilisees'] }} séances utilisées
+                        {{ best_clients['prenom'] }} {{ best_clients['nom'] }} : {{ best_clients['seances_utilisees'] }} séances utilisées
                     </li>
-                    {% endfor %}
+                    {% else %}
+                    <li class="list-group-item">
+                        Aucun client trouvé pour ce mois
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-md-12"> <!-- Colonne de 6/12 sur grands écrans, pleine largeur sur moyens -->
+        <div class="card shadow-sm"> <!-- Carte Bootstrap (zone encadrée), et ombre légère (sm pour small) -->
+            <div class="card-header bg-info text-dark"> <!-- En-tête de la carte avec fond jaune et texte noir -->
+                <h4 class="mb-0">Client avec le plus de séances restantes</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush"> <!-- Liste Bootstrap sans bordures entre les éléments -->
+                    {% if client_most_remaining %} <!-- Si un client a été trouvé -->
+                    <li class="list-group-item">
+                        {{ client_most_remaining['prenom'] }} {{ client_most_remaining['nom'] }} : {{ client_most_remaining['seances_restantes'] }} séances restantes
+                    </li>
+                    {% else %}
+                    <li class="list-group-item">
+                        Aucun client trouvé
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -28,7 +53,7 @@
 {% endif %} <!-- Fin de la condition sur best_clients -->
 
 <div class="row justify-content-center"> <!-- Ligne Bootstrap pour aligner les colonnes au centre -->
-    <div class="col-md-10"> <!-- Colonne de taille moyenne (8/12), md pour medium sur les écrans moyens -->
+    <div class="col-md-12"> <!-- Colonne de taille moyenne (8/12), md pour medium sur les écrans moyens -->
         <div class="card shadow-sm"> <!-- Carte Bootstrap (zone encadrée), et ombre légère (sm pour small) -->
             <div class="card-header bg-white"> <!-- En-tête de la carte avec fond blanc -->
                 <h4 class="mb-0">Liste des clients</h4>
