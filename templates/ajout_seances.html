@@ -4,31 +4,30 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card shadow">
-            <div class="card-header bg-warning text-dark">
-                <h4 class="mb-0">Recharger un compte</h4>
+            <div class="card-header bg-info text-dark">
+                <h4 class="mb-0">Recharger un compte en séances</h4>
             </div>
             <div class="card-body">
                 
                 <form method="post">
                     
                     <div class="mb-3">
-                        <label class="form-label">Prénom du client</label>
-                        <input type="text" class="form-control" name="prenom" placeholder="Ex: Arthur" required>
+                        <label class="form-label">Prénom </label>
+                        <input type="text" class="form-control" name="prenom" placeholder="Ex: Genièvre" required>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Nom du client</label>
-                        <input type="text" class="form-control" name="nom" placeholder="Ex: Pendragon" required>
+                        <label class="form-label">Nom</label>
+                        <input type="text" class="form-control" name="nom" placeholder="Ex: La Belle" required>
                     </div>
 
                     <hr> <div class="mb-3">
                         <label class="form-label">Nombre de séances à ajouter</label>
-                        <input type="number" class="form-control" name="seances_ajoutees" value="10" min="1" required>
-                        <div class="form-text">Généralement 1, 5 ou 10 séances.</div>
+                        <input type="number" class="form-control" name="seances_ajoutees" value="1" min="1" required>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-warning btn-lg">Valider l'ajout</button>
+                        <button type="submit" class="btn btn-info btn-lg">Valider l'ajout</button>
                     </div>
                 </form>
 
