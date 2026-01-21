@@ -5,6 +5,27 @@
     <h1 class="display-4">Accueil</h1> <!-- Titre principal, display-4 pour une grande taille de texte -->
     <p class="lead text-muted">Gestion des séances de pilates</p> <!-- Texte secondaire, lead pour un texte plus grand, text-muted pour une couleur grise -->
 </div>
+{% if best_clients %} <!-- Si la variable best_clients existe et n'est pas vide -->
+<div class="row justify-content-center mb-4"> <!-- Ligne Bootstrap pour aligner les colonnes au centre, marge basse de 4 -->
+    <div class="col-md-8"> <!-- Colonne de taille moyenne (8/12), md pour medium sur les écrans moyens -->
+        <div class="card shadow-sm"> <!-- Carte Bootstrap (zone encadrée), et ombre légère (sm pour small) -->
+            <div class="card-header bg-warning text-dark"> <!-- En-tête de la carte avec fond jaune et texte noir -->
+                <h4 class="mb-0">Meilleur client du mois</h4>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush"> <!-- Liste Bootstrap sans bordures entre les éléments -->
+                    {% for client in best_clients %} <!-- Boucle sur la liste des meilleurs clients passée depuis le backend -->
+                    <li class="list-group-item">
+                        {{ client['prenom'] }} {{ client['nom'] }} - {{ client['seances_utilisees'] }} séances utilisées
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endif %} <!-- Fin de la condition sur best_clients -->
 
 <div class="row justify-content-center"> <!-- Ligne Bootstrap pour aligner les colonnes au centre -->
     <div class="col-md-10"> <!-- Colonne de taille moyenne (8/12), md pour medium sur les écrans moyens -->

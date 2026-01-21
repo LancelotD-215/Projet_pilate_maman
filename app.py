@@ -9,6 +9,7 @@ date : 2026/01/20
 # imports des modules
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for
+from datetime import datetime
 
 # création de l'application Flask
 app = Flask(__name__) # création du site web
@@ -29,6 +30,34 @@ def get_db_connection():
     connection.row_factory = sqlite3.Row
     return connection
 
+def get_best_clients(since_date):
+    """
+    Fonction pour récupérer le meilleur client depuis une date donnée. (celui qui a utilisé le plus de séances)
+    Args:
+        since_date (str): date au format 'YYYY-MM-DD' pour filtrer les actions.
+    Returns:
+        list: liste des clients avec le nombre de séances utilisées.
+    """
+    connection = get_db_connection()
+
+    actual_date = datetime.now().strftime('%Y-%m-%d') # date actuelle au format 'YYYY-MM-DD'
+    query = """
+        SELECT c.prenom, c.nom, COUNT(h.id) AS seances_utilisees
+        FROM historique_seances h
+        JOIN clients c ON h.client_id = c.id
+        WHERE h.action = 'CHECK-IN' 
+        AND DATE(h.date_heure) BETWEEN ? AND ?
+        GROUP BY c.id
+        ORDER BY seances_utilisees DESC
+        LIMIT 1;  
+    """
+
+    result = connection.execute(query, (since_date, actual_date)).fetchall()
+    connection.close()
+    return result
+
+
+
 
 # création des routes pour le site web (pages)
 @app.route('/')
@@ -46,11 +75,16 @@ def index():
     # requête SQL pour récupérer tous les clients de la table 'clients'
     clients = connection.execute('SELECT * FROM clients').fetchall()
 
+    # ajout du meilleur client du mois
+    acutal_date = datetime.now().strftime('%Y-%m-%d')
+    first_day_of_month = acutal_date[:8] + '01' # premier jour du mois courant
+    best_clients = get_best_clients(first_day_of_month) # du mois courant
+
     # fermeture de la connexion à la base de données
     connection.close()
 
     # envoi des données à la page HTML index.html
-    return render_template('index.html', clients=clients)
+    return render_template('index.html', clients=clients, best_clients=best_clients)
 
 
 @app.route('/presence', methods=['GET', 'POST']) # pour accepter les requêtes GET et POST
@@ -85,7 +119,7 @@ def presence():
             connection.execute('UPDATE clients SET seances_restantes = seances_restantes - 1 WHERE id = ?', (client_id,))
 
             # ajout dans historique seances
-            connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)', (client_id, "utilisation", -1))
+            connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)', (client_id, "CHECK-IN", -1))
 
             # commit des changements
             connection.commit() 
@@ -104,6 +138,8 @@ def presence():
         clients = connection.execute('SELECT * FROM clients').fetchall()
         connection.close()
         return render_template('presence.html', clients=clients)
+
+
 
 
 @app.route('/ajout_client', methods=['GET', 'POST'])
@@ -139,7 +175,7 @@ def ajout_client():
             nouveau_client_id = curseur.lastrowid
 
             # ajout dans historique seances
-            connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)',(nouveau_client_id, 'CREATION_COMPTE', seances_initiales))
+            connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)',(nouveau_client_id, 'NEW_ACCOUNT', seances_initiales))
 
             # commit des changements
             connection.commit() 
@@ -152,6 +188,8 @@ def ajout_client():
         connection.close()
         # affichage du formulaire d'ajout de client
         return render_template('ajout_client.html')
+
+
 
 
 @app.route('/ajout_seances', methods=['GET', 'POST'])
@@ -182,7 +220,7 @@ def ajout_seances():
             connection.execute('UPDATE clients SET seances_restantes = seances_restantes + ? WHERE id = ?', (seances_ajoutees, client_id))
 
             # ajout dans historique seances
-            connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)', (client_id, "ajout", seances_ajoutees))
+            connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)', (client_id, "ADD_SEANCES", seances_ajoutees))
 
             # commit des changements
             connection.commit() 
