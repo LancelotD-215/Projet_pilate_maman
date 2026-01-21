@@ -1,0 +1,40 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Noter ma présence</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    
+                    <div class="mb-3">
+                        <label for="client_select" class="form-label">Qui êtes-vous ?</label>
+                        <select class="form-select" name="client_id" id="client_select" required>
+                            <option value="" selected disabled>-- Choisir mon nom --</option>
+                            
+                            {% for client in clients %}
+                                <option value="{{ client['id'] }}">
+                                    {{ client['prenom'] }} {{ client['nom'] }} ({{ client['seances_restantes'] }} restantes)
+                                </option>
+                            {% endfor %}
+                            
+                        </select>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg">Valider une séance</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="/" class="text-muted">Retour à l'accueil</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
