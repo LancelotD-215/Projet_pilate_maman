@@ -1,0 +1,17 @@
+# Ignorer les exécutables Windows
+*.exe
+*.dll
+
+# Ignorer les fichiers de compilation intermédiaires
+*.o
+*.obj
+
+# Ignorer les dossiers de build (si tu en crées)
+bin/
+build/
+out/
+
+# Ignorer les fichiers systèmes VS Code (optionnel, selon tes goûts)
+.vscode/
+
+ngrok.exe
