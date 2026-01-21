@@ -8,7 +8,7 @@ date : 2026/01/20
 
 # imports des modules
 import sqlite3
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 
 # création de l'application Flask
 app = Flask(__name__) # création du site web
@@ -51,6 +51,41 @@ def index():
 
     # envoi des données à la page HTML index.html
     return render_template('index.html', clients=clients)
+
+@app.route('/presence')
+def presence():
+    """
+    Fonction exécutée lors de l'accès à la page '/presence'.
+    Args:
+        None
+    Returns:
+        str: rendu HTML de la page de présence.
+    """
+    # connexion à la base de données
+    connection = get_db_connection()
+
+    if request.method == "POST" : # si l'utilisateur a soumis le formulaire (POST)
+        # récupération de l'ID du client depuis le formulaire
+        client_id = request.form['client_id']
+
+        # mise à jour de la présence du client dans la base de données
+        connection.execute('UPDATE clients SET seances_restantes = seances_restantes - 1 WHERE id = ?', (client_id,)) # ? évite les injections SQL
+
+        # mise a jour de l'historique de présence
+        connection.execute('UPDATE historique_seances SET (client_id, action, nombre) VALUES (?, ?, ?)' (client_id, "utilisation", -1))
+
+        # commit des changements
+        connection.commit
+        connection.close
+
+        # revoi l'utilisateur vers l'acceuil
+        return redirect(url_for('index'))
+
+    if request.method == "GET" :
+        # affichage de la liste des clients
+        clients = connection.execute('SELECT * FROM clients').fetchall()
+        connection.close()
+        return render_template('presence.html', clients=clients)
 
 # lancement de l'application Flask
 if __name__ == '__main__':
