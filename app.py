@@ -154,6 +154,49 @@ def ajout_client():
         return render_template('ajout_client.html')
 
 
+@app.route('/ajout_seances', methods=['GET', 'POST'])
+def ajout_seances():
+    """
+    Fonction exécutée lors de l'accès à la page '/ajout_seances'.
+    Args:
+        None
+    Returns:
+        str: rendu HTML de la page d'ajout de séances.
+    """
+    # connexion à la base de données
+    connection = get_db_connection()
+    
+    if request.method == "POST":
+        # récupération des données du formulaire
+        prenom = request.form['prenom'].strip().title()
+        nom = request.form['nom'].strip().title() 
+        seances_ajoutees = int(request.form['seances_ajoutees'])
+
+        # recherche du client dans la base de données
+        client = connection.execute('SELECT * FROM clients WHERE prenom = ? AND nom = ?', (prenom, nom)).fetchone()
+
+        if client:
+            client_id = client['id']
+
+            # mise à jour du nombre de séances restantes pour le client
+            connection.execute('UPDATE clients SET seances_restantes = seances_restantes + ? WHERE id = ?', (seances_ajoutees, client_id))
+
+            # ajout dans historique seances
+            connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)', (client_id, "ajout", seances_ajoutees))
+
+            # commit des changements
+            connection.commit() 
+            connection.close()
+
+            # renvoie l'utilisateur vers l'accueil
+            return redirect(url_for('index'))
+
+    if request.method == "GET" :
+        # affichage de la liste des clients
+        clients = connection.execute('SELECT * FROM clients').fetchall()
+        connection.close()
+        return render_template('ajout_seances.html', clients=clients)
+
 
 # lancement de l'application Flask
 if __name__ == '__main__':

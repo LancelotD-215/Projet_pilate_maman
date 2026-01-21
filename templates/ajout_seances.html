@@ -1,0 +1,43 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">Recharger un compte</h4>
+            </div>
+            <div class="card-body">
+                
+                <form method="post">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Prénom du client</label>
+                        <input type="text" class="form-control" name="prenom" placeholder="Ex: Arthur" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nom du client</label>
+                        <input type="text" class="form-control" name="nom" placeholder="Ex: Pendragon" required>
+                    </div>
+
+                    <hr> <div class="mb-3">
+                        <label class="form-label">Nombre de séances à ajouter</label>
+                        <input type="number" class="form-control" name="seances_ajoutees" value="10" min="1" required>
+                        <div class="form-text">Généralement 1, 5 ou 10 séances.</div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning btn-lg">Valider l'ajout</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="/" class="text-muted">Annuler</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
