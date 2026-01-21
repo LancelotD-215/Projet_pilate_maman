@@ -31,9 +31,6 @@ def index():
     # connexion à la base de données
     connection = get_db_connection()
 
-    # requête SQL pour récupérer tous les clients de la table 'clients'
-    clients = connection.execute('SELECT * FROM clients').fetchall()
-
     # ajout du meilleur client du mois
     actual_date = datetime.now().strftime('%Y-%m-%d')
     first_day_of_month = actual_date[:8] + '01' # premier jour du mois courant
@@ -45,7 +42,31 @@ def index():
     connection.close()
 
     # envoi des données à la page HTML index.html
-    return render_template('index.html', clients=clients, best_clients=best_clients, client_most_remaining=client_most_remaining)
+    return render_template('index.html', best_clients=best_clients, client_most_remaining=client_most_remaining)
+
+
+@app.route('/gestion_clients')
+def gestion_clients():
+    """
+    Fonction exécutée lors de l'accès à la page gestion_clients ('/gestion_clients').
+    Args:
+        None
+    Returns:
+        str: rendu HTML de la page gestion_clients.
+    """
+    # connexion à la base de données
+    connection = get_db_connection()
+
+    # requête SQL pour récupérer tous les clients de la table 'clients'
+    clients = connection.execute('SELECT * FROM clients').fetchall()
+
+    # fermeture de la connexion à la base de données
+    connection.close()
+
+    # envoi des données à la page HTML gestion_clients.html
+    return render_template('gestion_clients.html', clients=clients)
+
+
 
 
 @app.route('/presence', methods=['GET', 'POST']) # pour accepter les requêtes GET et POST

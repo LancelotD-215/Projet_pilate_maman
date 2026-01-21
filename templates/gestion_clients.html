@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+
+
+<div class="row justify-content-center"> <!-- Ligne Bootstrap pour aligner les colonnes au centre -->
+    <div class="col-md-12"> <!-- Colonne de taille moyenne (8/12), md pour medium sur les écrans moyens -->
+        <div class="card shadow-sm"> <!-- Carte Bootstrap (zone encadrée), et ombre légère (sm pour small) -->
+            <div class="card-header bg-white"> <!-- En-tête de la carte avec fond blanc -->
+                <h4 class="mb-0">Liste des clients</h4>
+            </div>
+            <div class="card-body p-0"> <!-- Corps de la carte avec padding nul -->
+                <table id="tableauClients" class="table table-striped mb-0"> <!-- Table Bootstrap avec lignes alternées (striped) et marge basse nulle -->
+                    <thead>
+                        <tr>
+                            <th>Prénom</th>
+                            <th>Nom</th>
+                            <th class="text-center">Séances restantes</th> <!-- Centre le texte de cette colonne -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %} <!-- Coeur dynamique : boucle sur la liste des clients passée depuis le backend -->
+                        <tr> <!-- Ligne du tableau pour chaque client, table row -->
+                            <td>{{ client['prenom'] }}</td> <!-- Cellule du tableau pour le prénom, table data -->
+                            <td>{{ client['nom'] }}</td> <!-- Double accolade pour insérer la valeur dynamique du nom -->
+                            <td class="text-center" data-order="{{ client['seances_restantes'] }}"> <!-- Centre le texte de cette cellule -->
+                                <span class="badge rounded-pill 
+                                    {% if client['seances_restantes'] > 0 %}
+                                        bg-success
+                                    {% else %}
+                                        bg-danger
+                                    {% endif %}">
+                                    {{ client['seances_restantes'] }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %} <!-- Fin de la boucle sur les clients -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
