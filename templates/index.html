@@ -72,7 +72,7 @@
                         <tr> <!-- Ligne du tableau pour chaque client, table row -->
                             <td>{{ client['prenom'] }}</td> <!-- Cellule du tableau pour le prénom, table data -->
                             <td>{{ client['nom'] }}</td> <!-- Double accolade pour insérer la valeur dynamique du nom -->
-                            <td class="text-center"> <!-- Centre le texte de cette cellule -->
+                            <td class="text-center" data-order="{{ client['seances_restantes'] }}"> <!-- Centre le texte de cette cellule -->
                                 <span class="badge rounded-pill 
                                     {% if client['seances_restantes'] > 0 %}
                                         bg-success

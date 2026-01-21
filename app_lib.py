@@ -23,7 +23,7 @@ def get_db_connection():
         sqlite3.Connection: lien de connexion à la base de données.
     """
     # connection à la base de données
-    connection = sqlite3.connect('database_clients.db')
+    connection = sqlite3.connect('database_clients_test.db')
 
     # pour accéder aux colonnes par nom et non par index
     connection.row_factory = sqlite3.Row
