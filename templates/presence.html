@@ -8,24 +8,21 @@
                 <h4 class="mb-0">Noter ma présence</h4>
             </div>
             <div class="card-body">
+                
                 <form method="post">
                     
                     <div class="mb-3">
-                        <label for="client_select" class="form-label">Qui êtes-vous ?</label>
-                        <select class="form-select" name="client_id" id="client_select" required>
-                            <option value="" selected disabled>-- Choisir mon nom --</option>
-                            
-                            {% for client in clients %}
-                                <option value="{{ client['id'] }}">
-                                    {{ client['prenom'] }} {{ client['nom'] }} ({{ client['seances_restantes'] }} restantes)
-                                </option>
-                            {% endfor %}
-                            
-                        </select>
+                        <label for="prenom" class="form-label">Prénom</label>
+                        <input type="text" class="form-control" name="prenom" id="prenom" placeholder="Ex: Lancelot" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" name="nom" id="nom" placeholder="Ex: Du Lac" required>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-success btn-lg">Valider une séance</button>
+                        <button type="submit" class="btn btn-success btn-lg">Valider l'entrée</button>
                     </div>
                 </form>
 

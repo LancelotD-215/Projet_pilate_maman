@@ -66,21 +66,37 @@ def presence():
 
     if request.method == "POST": # si l'utilisateur a soumis le formulaire (POST)
         # récupération de l'ID du client depuis le formulaire
-        client_id = request.form['client_id']
+        prenom = request.form['prenom']
+        nom = request.form['nom']
 
-        # mise à jour de la présence du client dans la base de données
-        connection.execute('UPDATE clients SET seances_restantes = seances_restantes - 1 WHERE id = ?', (client_id,))
+        # nettoyage des entrées
+        prenom = prenom.strip().title()
+        nom = nom.strip().title() 
 
-        # ajout dans historique seances
-        connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)', 
-                           (client_id, "utilisation", -1))
+        # recherche du client dans la base de données
+        client = connection.execute('SELECT * FROM clients WHERE prenom = ? AND nom = ?', (prenom, nom)).fetchone()
+        
+        if client:
+            # récupération de l'ID du client
+            client_id = client['id']
 
-        # commit des changement
-        connection.commit() 
-        connection.close()
+            # mise à jour de la présence du client dans la base de données
+            connection.execute('UPDATE clients SET seances_restantes = seances_restantes - 1 WHERE id = ?', (client_id,))
 
-        # renvoie l'utilisateur vers l'accueil
-        return redirect(url_for('index'))
+            # ajout dans historique seances
+            connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)', (client_id, "utilisation", -1))
+
+            # commit des changements
+            connection.commit() 
+            connection.close()
+
+            # renvoie l'utilisateur vers l'accueil
+            return redirect(url_for('index'))
+        
+        else:
+            # client non trouvé
+            connection.close()
+            return (f"<h1>Erreur : Le client '{prenom} {nom}' est introuvable.</h1><p>Vérifiez l'orthographe et réessayez.</p><a href='/presence'>Réessayer</a>")
 
     if request.method == "GET" :
         # affichage de la liste des clients
