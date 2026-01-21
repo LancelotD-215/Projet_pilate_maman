@@ -52,7 +52,7 @@ def index():
     # envoi des données à la page HTML index.html
     return render_template('index.html', clients=clients)
 
-@app.route('/presence')
+@app.route('/presence', methods=['GET', 'POST']) # pour accepter les requêtes GET et POST
 def presence():
     """
     Fonction exécutée lors de l'accès à la page '/presence'.
@@ -64,21 +64,22 @@ def presence():
     # connexion à la base de données
     connection = get_db_connection()
 
-    if request.method == "POST" : # si l'utilisateur a soumis le formulaire (POST)
+    if request.method == "POST": # si l'utilisateur a soumis le formulaire (POST)
         # récupération de l'ID du client depuis le formulaire
         client_id = request.form['client_id']
 
         # mise à jour de la présence du client dans la base de données
-        connection.execute('UPDATE clients SET seances_restantes = seances_restantes - 1 WHERE id = ?', (client_id,)) # ? évite les injections SQL
+        connection.execute('UPDATE clients SET seances_restantes = seances_restantes - 1 WHERE id = ?', (client_id,))
 
-        # mise a jour de l'historique de présence
-        connection.execute('UPDATE historique_seances SET (client_id, action, nombre) VALUES (?, ?, ?)' (client_id, "utilisation", -1))
+        # ajout dans historique seances
+        connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)', 
+                           (client_id, "utilisation", -1))
 
-        # commit des changements
-        connection.commit
-        connection.close
+        # commit des changement
+        connection.commit() 
+        connection.close()
 
-        # revoi l'utilisateur vers l'acceuil
+        # renvoie l'utilisateur vers l'accueil
         return redirect(url_for('index'))
 
     if request.method == "GET" :
