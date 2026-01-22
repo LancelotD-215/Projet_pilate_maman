@@ -15,8 +15,9 @@
                         <tr>
                             <th>Prénom</th>
                             <th>Nom</th>
-                            <th class="text-center">Séances restantes</th> <!-- Centre le texte de cette colonne -->
                             <th>Date d'inscription</th>
+                            <th class="text-center">Séances restantes</th> <!-- Centre le texte de cette colonne -->
+                            <th>Ajout séances</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -24,6 +25,7 @@
                         <tr> <!-- Ligne du tableau pour chaque client, table row -->
                             <td>{{ client['prenom'] }}</td> <!-- Cellule du tableau pour le prénom, table data -->
                             <td>{{ client['nom'] }}</td> <!-- Double accolade pour insérer la valeur dynamique du nom -->
+                            <td>{{ client['date_inscription'] }}</td>
                             <td class="text-center" data-order="{{ client['seances_restantes'] }}"> <!-- Centre le texte de cette cellule -->
                                 <span class="badge rounded-pill 
                                     {% if client['seances_restantes'] > 0 %}
@@ -34,7 +36,14 @@
                                     {{ client['seances_restantes'] }}
                                 </span>
                             </td>
-                            <td>{{ client['date_inscription'] }}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-success btn-ajout-rapide"
+                                 data-id="{{ client['id'] }}"
+                                 data-prenom="{{ client['prenom'] }}"
+                                   data-nom="{{ client['nom'] }}">
+                               ➕ Ajouter
+                                 </button>
+                           </td>
                         </tr>
                         {% endfor %} <!-- Fin de la boucle sur les clients -->
                     </tbody>
@@ -43,5 +52,61 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalAjoutSeance" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{{ url_for('ajout_seances_rapide') }}" method="POST">
+          
+        <div class="modal-header bg-info text-dark">
+          <h5 class="modal-title">Recharger séances</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        
+        <div class="modal-body">
+          <p id="modalClientNom" class="fw-bold text-center fs-5"></p>
+          
+          <input type="hidden" name="client_id" id="inputClientId">
+
+          <div class="mb-3">
+            <label class="form-label">Nombre de séances à ajouter</label>
+            <input type="number" class="form-control form-control-lg text-center" name="seances_ajoutees" value="3" min="1" required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-success">Valider l'ajout</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+    // On attend que le document soit chargé
+    // Note: Assure-toi que jQuery est bien chargé dans layout.html AVANT ce bloc
+    document.addEventListener("DOMContentLoaded", function() {
+        
+        // On utilise jQuery avec "delegation" pour gérer DataTables
+        // Au lieu de dire "Sur le bouton", on dit "Sur le Document, surveille les clics qui viennent de .btn-ajout-rapide"
+        $(document).on('click', '.btn-ajout-rapide', function () {
+            
+            // 1. On récupère les infos
+            var id = $(this).data('id');
+            var prenom = $(this).data('prenom');
+            var nom = $(this).data('nom');
+
+            // 2. On remplit la modale
+            $('#inputClientId').val(id);
+            $('#modalClientNom').text(prenom + ' ' + nom);
+
+            // 3. On affiche la modale Bootstrap
+            var myModal = new bootstrap.Modal(document.getElementById('modalAjoutSeance'));
+            myModal.show();
+        });
+    });
+</script>
 
 {% endblock %}

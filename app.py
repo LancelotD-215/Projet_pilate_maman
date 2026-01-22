@@ -249,6 +249,39 @@ def ajout_seances():
         return render_template('ajout_seances.html', clients=clients)
 
 
+
+@app.route('/ajout_seances_rapide', methods=['POST'])
+def ajout_seances_rapide():
+    """
+    Fonction exécutée lors de l'accès à la page '/ajout_seances_rapide'.
+    Args:
+        None
+    Returns:
+        str: redirection vers la page de gestion des clients.
+    """
+    # connexion à la base de données
+    connection = get_db_connection()
+    
+    if request.method == "POST":
+        # récupération des données du formulaire
+        client_id = int(request.form['client_id'])
+        seances_ajoutees = int(request.form['seances_ajoutees'])
+
+        # mise à jour du nombre de séances restantes pour le client
+        connection.execute('UPDATE clients SET seances_restantes = seances_restantes + ? WHERE id = ?', (seances_ajoutees, client_id))
+
+        # ajout dans historique seances
+        connection.execute('INSERT INTO historique_seances (client_id, action, nombre) VALUES (?, ?, ?)', (client_id, "ADD_SEANCES", seances_ajoutees))
+
+        # commit des changements
+        connection.commit() 
+        connection.close()
+
+        # renvoie l'utilisateur vers la page de gestion des clients
+        return redirect(url_for('gestion_clients'))
+
+
+
 # lancement de l'application Flask
 if __name__ == '__main__':
     app.run(debug=True)

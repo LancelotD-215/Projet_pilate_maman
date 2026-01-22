@@ -2,22 +2,22 @@
 
 {% block content %} <!-- Début du bloc de contenu spécifique à cette page -->
 <div class="text-center py-5"> <!-- Centre le texte avec un padding (espace intérieur) vertical de 5 -->
-    <h1 class="display-4">Accueil</h1> <!-- Titre principal, display-4 pour une grande taille de texte -->
-    <p class="lead text-muted">Gestion des séances de pilates</p> <!-- Texte secondaire, lead pour un texte plus grand, text-muted pour une couleur grise -->
+    <h1 class="display-4">Tableau de bord</h1> <!-- Titre principal, display-4 pour une grande taille de texte -->
+    <p class="lead text-muted">Suivi de votre studio Pilates</p> <!-- Texte secondaire, lead pour un texte plus grand, text-muted pour une couleur grise -->
 </div>
 
 <div class="row g-4 mb-5"> <!-- Grille Bootstrap avec des colonnes, g-4 pour un espacement de 4 entre les colonnes, mb-5 pour une marge inférieure de 5 -->
     {% if widgets['best_client_month'] %}
     <div class="col-md-6 col-xl-3"> 
         <div class="card shadow-sm h-100 border-warning"> 
-            <div class="card-header bg-warning text-dark">
+            <div class="card-header bg-warning text-white">
                 <h5 class="mb-0">Meilleur client du mois</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
                 {% if best_clients_month %}
-                    <h5 class="card-title">{{ best_clients_month['prenom'] }} {{ best_clients_month['nom'] }}</h5>
-                    <p class="card-text display-6">{{ best_clients_month['seances_utilisees'] }}</p>
-                    <p class="text-muted small">séances utilisées</p>
+                    <h4 class="card-title mb-2">{{ best_clients_month['prenom'] }} {{ best_clients_month['nom'] }}</h6>
+                    <div class="display-4 fw-bold text-warning mb-2">{{ best_clients_month['seances_utilisees'] }}</div>
+                    <p class="text-muted mb-0 small">séances utilisées</p>
                 {% else %}
                     <p class="text-muted">Aucune donnée ce mois-ci</p>
                 {% endif %}
@@ -32,11 +32,11 @@
             <div class="card-header bg-info text-white">
                 <h5 class="mb-0">Client avec le plus de séances restantes</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
                 {% if client_most_remaining %}
-                    <h5 class="card-title">{{ client_most_remaining['prenom'] }} {{ client_most_remaining['nom'] }}</h5>
-                    <p class="card-text display-6">{{ client_most_remaining['seances_restantes'] }}</p>
-                    <p class="text-muted small">séances en poche</p>
+                    <h4 class="card-title mb-2">{{ client_most_remaining['prenom'] }} {{ client_most_remaining['nom'] }}</h6>
+                    <div class="display-4 fw-bold text-info mb-2">{{ client_most_remaining['seances_restantes'] }}</div>
+                    <p class="text-muted mb-0 small">séances restantes</p>
                 {% else %}
                     <p class="text-muted">Aucun client</p>
                 {% endif %}
@@ -51,10 +51,10 @@
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">Total Clients</h5>
             </div>
-            <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
                 {% if total_clients %}
-                    <p class="card-text display-4 fw-bold text-primary">{{ total_clients }}</p>
-                    <p class="text-muted">inscrits à ce jour</p>
+                    <div class="display-3 fw-bold text-primary mb-2">{{ total_clients }}</div>
+                    <p class="text-muted mb-0">inscrits à ce jour</p>
                 {% else %}
                     <p class="text-muted">Aucun inscrit</p>
                 {% endif %}
@@ -69,12 +69,12 @@
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0">Activité</h5>
             </div>
-            <div class="card-body d-flex flex-column justify-content-center align-items-center">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
                 {% if number_seances_month %}
-                    <p class="card-text display-4 fw-bold text-success">{{ number_seances_month }}</p>
-                    <p class="text-muted">cours donnés ce mois</p>
+                    <div class="display-3 fw-bold text-success mb-2">{{ number_seances_month }}</div>
+                    <p class="text-muted mb-0">cours donnés ce mois</p>
                 {% else %}
-                    <p class="text-muted">Calme plat...</p>
+                    <p class="text-muted">Aucun cours donné ce mois-ci</p>
                 {% endif %}
             </div>
         </div>
