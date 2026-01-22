@@ -31,17 +31,17 @@ def get_db_connection():
 
 
 
-def get_best_clients(since_date):
+def get_best_clients(since_date, until_date):
     """
     Fonction pour récupérer le meilleur client depuis une date donnée. (celui qui a utilisé le plus de séances)
     Args:
-        since_date (str): date au format 'YYYY-MM-DD' pour filtrer les actions.
+        since_date (str): date au format 'YYYY-MM-DD' pour filtrer le début des actions.
+        until_date (str): date au format 'YYYY-MM-DD' pour filtrer la fin des actions.
     Returns:
         list: liste des clients avec le nombre de séances utilisées.
     """
     connection = get_db_connection()
 
-    actual_date = datetime.now().strftime('%Y-%m-%d') # date actuelle au format 'YYYY-MM-DD'
     query = """
         SELECT c.prenom, c.nom, COUNT(h.id) AS seances_utilisees
         FROM historique_seances h
@@ -53,9 +53,11 @@ def get_best_clients(since_date):
         LIMIT 1;  
     """
 
-    result = connection.execute(query, (since_date, actual_date)).fetchone()
+    result = connection.execute(query, (since_date, until_date)).fetchone()
     connection.close()
     return result
+
+
 
 
 def get_client_most_remaining():
@@ -78,3 +80,50 @@ def get_client_most_remaining():
     result = connection.execute(query).fetchone()
     connection.close()
     return result
+
+
+
+
+def get_number_seances(since_date, until_date, time_space_minutes=120):
+    """
+    Fonction pour récupérer le nombre total de séances donnée par le prof depuis une date donnée.
+    En partant du principe qu'une séance est enregistrée par une action 'CHECK-IN' des participants.
+    Et que plusieurs CHECK-IN espacé de moins de time_space_minutes minutes correspondent à la même séance.
+    Args:
+        since_date (str): date au format 'YYYY-MM-DD' pour filtrer le début des actions.
+        until_date (str): date au format 'YYYY-MM-DD' pour filtrer la fin des actions.
+        time_space_minutes (int): intervalle de temps en minutes pour regrouper les CHECK-IN dans une même séance.
+    Returns:
+        int: nombre total de séances.
+    """
+    connection = get_db_connection()
+
+    query = """
+        SELECT date_heure
+        FROM historique_seances
+        WHERE action = 'CHECK-IN'
+        AND DATE(date_heure) BETWEEN ? AND ?
+        ORDER BY date_heure ASC;
+    """
+
+    rows = connection.execute(query, (since_date, until_date)).fetchall()
+    connection.close()
+
+    if not rows:
+        return 0
+
+    # Regroupement des CHECK-IN en séances
+    seances = []
+    current_seance_start = datetime.strptime(rows[0]['date_heure'], '%Y-%m-%d %H:%M:%S')
+
+    for row in rows[1:]:
+        check_in_time = datetime.strptime(row['date_heure'], '%Y-%m-%d %H:%M:%S')
+        delta_minutes = (check_in_time - current_seance_start).total_seconds() / 60
+
+        if delta_minutes > time_space_minutes:
+            seances.append(current_seance_start)
+            current_seance_start = check_in_time
+
+    # Ajouter la dernière séance
+    seances.append(current_seance_start)
+    return len(seances)

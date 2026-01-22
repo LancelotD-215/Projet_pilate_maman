@@ -16,6 +16,7 @@
                             <th>Prénom</th>
                             <th>Nom</th>
                             <th class="text-center">Séances restantes</th> <!-- Centre le texte de cette colonne -->
+                            <th>Date d'inscription</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -33,6 +34,7 @@
                                     {{ client['seances_restantes'] }}
                                 </span>
                             </td>
+                            <td>{{ client['date_inscription'] }}</td>
                         </tr>
                         {% endfor %} <!-- Fin de la boucle sur les clients -->
                     </tbody>

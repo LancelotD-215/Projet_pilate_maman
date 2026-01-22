@@ -10,7 +10,7 @@ date : 2026/01/20
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for
 from datetime import datetime
-from app_lib import get_db_connection, get_best_clients, get_client_most_remaining
+from app_lib import get_db_connection, get_best_clients, get_client_most_remaining, get_number_seances
 
 # création de l'application Flask
 app = Flask(__name__) # création du site web
@@ -31,18 +31,49 @@ def index():
     # connexion à la base de données
     connection = get_db_connection()
 
-    # ajout du meilleur client du mois
+    # CONFIGURATION DES WIDGETS
+    widgets_config = {
+        'best_client_month': True,
+        'best_client_all_time': False,
+        'most_remaining': True,
+        'total_clients': True,
+        'seances_month': True
+    }
+
+    # initialisation des données des widgets
+    best_clients_month = None
+    best_clients_all_time = None
+    client_most_remaining = None
+    total_clients = None
+    number_seances_month = None
+
+    # récupération des variables
     actual_date = datetime.now().strftime('%Y-%m-%d')
     first_day_of_month = actual_date[:8] + '01' # premier jour du mois courant
-    best_clients = get_best_clients(first_day_of_month) # du mois courant
-    #best_clients_all_time = get_best_clients('2000-01-01') # depuis le début
-    client_most_remaining = get_client_most_remaining()
+
+    # création des données pour les widgets
+    if widgets_config['best_client_month']:
+        best_clients_month = get_best_clients(first_day_of_month, actual_date) # du mois courant
+    if widgets_config['best_client_all_time']:
+        best_clients_all_time = get_best_clients('2000-01-01', actual_date) # depuis le début
+    if widgets_config['most_remaining']:
+        client_most_remaining = get_client_most_remaining()
+    if widgets_config['total_clients']:
+        total_clients = connection.execute('SELECT COUNT(*) AS total FROM clients').fetchone()['total']
+    if widgets_config['seances_month']:
+        number_seances_month = get_number_seances(first_day_of_month, actual_date) # du mois courant
+
 
     # fermeture de la connexion à la base de données
     connection.close()
 
     # envoi des données à la page HTML index.html
-    return render_template('index.html', best_clients=best_clients, client_most_remaining=client_most_remaining)
+    return render_template('index.html', 
+                           widgets=widgets_config,
+                           best_clients_month=best_clients_month,  
+                           client_most_remaining=client_most_remaining, 
+                           total_clients=total_clients, 
+                           number_seances_month=number_seances_month)
 
 
 @app.route('/gestion_clients')

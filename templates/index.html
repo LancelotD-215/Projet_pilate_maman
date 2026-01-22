@@ -6,50 +6,80 @@
     <p class="lead text-muted">Gestion des séances de pilates</p> <!-- Texte secondaire, lead pour un texte plus grand, text-muted pour une couleur grise -->
 </div>
 
-{% if best_clients %} <!-- Si la variable best_clients existe et n'est pas vide -->
-<div class="row mb-4"> <!-- Ligne Bootstrap pour aligner les colonnes, marge basse de 4 -->
-    <div class="col-lg-6 col-md-12"> <!-- Colonne de 6/12 sur grands écrans, pleine largeur sur moyens -->
-        <div class="card shadow-sm"> <!-- Carte Bootstrap (zone encadrée), et ombre légère (sm pour small) -->
-            <div class="card-header bg-warning text-dark"> <!-- En-tête de la carte avec fond jaune et texte noir -->
-                <h4 class="mb-0">Meilleur client du mois</h4>
+<div class="row g-4 mb-5"> <!-- Grille Bootstrap avec des colonnes, g-4 pour un espacement de 4 entre les colonnes, mb-5 pour une marge inférieure de 5 -->
+    {% if widgets['best_client_month'] %}
+    <div class="col-md-6 col-xl-3"> 
+        <div class="card shadow-sm h-100 border-warning"> 
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Meilleur client du mois</h5>
             </div>
             <div class="card-body">
-                <ul class="list-group list-group-flush"> <!-- Liste Bootstrap sans bordures entre les éléments -->
-                    {% if best_clients %} <!-- Si un client a été trouvé -->
-                    <li class="list-group-item">
-                        {{ best_clients['prenom'] }} {{ best_clients['nom'] }} : {{ best_clients['seances_utilisees'] }} séances utilisées
-                    </li>
-                    {% else %}
-                    <li class="list-group-item">
-                        Aucun client trouvé pour ce mois
-                    </li>
-                    {% endif %}
-                </ul>
+                {% if best_clients_month %}
+                    <h5 class="card-title">{{ best_clients_month['prenom'] }} {{ best_clients_month['nom'] }}</h5>
+                    <p class="card-text display-6">{{ best_clients_month['seances_utilisees'] }}</p>
+                    <p class="text-muted small">séances utilisées</p>
+                {% else %}
+                    <p class="text-muted">Aucune donnée ce mois-ci</p>
+                {% endif %}
             </div>
         </div>
     </div>
-    <div class="col-lg-6 col-md-12"> <!-- Colonne de 6/12 sur grands écrans, pleine largeur sur moyens -->
-        <div class="card shadow-sm"> <!-- Carte Bootstrap (zone encadrée), et ombre légère (sm pour small) -->
-            <div class="card-header bg-info text-dark"> <!-- En-tête de la carte avec fond jaune et texte noir -->
-                <h4 class="mb-0">Client avec le plus de séances restantes</h4>
-            </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush"> <!-- Liste Bootstrap sans bordures entre les éléments -->
-                    {% if client_most_remaining %} <!-- Si un client a été trouvé -->
-                    <li class="list-group-item">
-                        {{ client_most_remaining['prenom'] }} {{ client_most_remaining['nom'] }} : {{ client_most_remaining['seances_restantes'] }} séances restantes
-                    </li>
-                    {% else %}
-                    <li class="list-group-item">
-                        Aucun client trouvé
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+    {% endif %}
 
-{% endif %} <!-- Fin de la condition sur best_clients -->
+    {% if widgets['most_remaining'] %}
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100 border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Client avec le plus de séances restantes</h5>
+            </div>
+            <div class="card-body">
+                {% if client_most_remaining %}
+                    <h5 class="card-title">{{ client_most_remaining['prenom'] }} {{ client_most_remaining['nom'] }}</h5>
+                    <p class="card-text display-6">{{ client_most_remaining['seances_restantes'] }}</p>
+                    <p class="text-muted small">séances en poche</p>
+                {% else %}
+                    <p class="text-muted">Aucun client</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if widgets['total_clients'] %}
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100 border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Total Clients</h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                {% if total_clients %}
+                    <p class="card-text display-4 fw-bold text-primary">{{ total_clients }}</p>
+                    <p class="text-muted">inscrits à ce jour</p>
+                {% else %}
+                    <p class="text-muted">Aucun inscrit</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if widgets['seances_month'] %}
+    <div class="col-md-6 col-xl-3">
+        <div class="card shadow-sm h-100 border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Activité</h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                {% if number_seances_month %}
+                    <p class="card-text display-4 fw-bold text-success">{{ number_seances_month }}</p>
+                    <p class="text-muted">cours donnés ce mois</p>
+                {% else %}
+                    <p class="text-muted">Calme plat...</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
 
 {% endblock %} <!-- Fin du bloc de contenu spécifique à cette page -->
