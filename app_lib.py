@@ -127,3 +127,25 @@ def get_number_seances(since_date, until_date, time_space_minutes=120):
     # Ajouter la dernière séance
     seances.append(current_seance_start)
     return len(seances)
+
+
+def get_negative_seances_clients():
+    """
+    Fonction pour récupérer la liste des clients avec un solde négatif de séances.
+    Args:
+        None
+    Returns:
+        list: liste des clients avec un solde négatif de séances.
+    """
+    connection = get_db_connection()
+
+    query = """
+        SELECT id, prenom, nom, seances_restantes
+        FROM clients
+        WHERE seances_restantes < 0
+        ORDER BY seances_restantes ASC
+    """
+
+    results = connection.execute(query).fetchall()
+    connection.close()
+    return results
