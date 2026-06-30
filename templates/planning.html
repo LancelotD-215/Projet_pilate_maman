@@ -218,6 +218,15 @@
 </div>
 
 <script>
+    // Petit helper : renvoie un libellé discret du solde restant (ex: "3 séances")
+    function formaterSolde(solde) {
+        if (solde === null || solde === undefined || solde === '') {
+            return '';
+        }
+        var pluriel = (Math.abs(solde) > 1) ? 's' : '';
+        return '<span class="text-muted small me-2">' + solde + ' séance' + pluriel + ' restante' + pluriel + '</span>';
+    }
+
     // Fonction appelée quand on clique sur "Marquer présence"
     function validerPresenceAjax(event, formElement) {
         // 1. Bloquer le rechargement de la page standard
@@ -243,9 +252,13 @@
         });
 
         // 4. MODIFICATION VISUELLE IMMÉDIATE (UI Optimiste)
-        // On remplace le formulaire (le bouton) par le badge vert
+        // On remplace le formulaire (le bouton) par le solde restant + le badge vert.
+        // Le solde est décompté de 1 par le marquage de présence.
         var parentDiv = formElement.parentElement;
-        parentDiv.innerHTML = '<span class="badge bg-success rounded-pill"><i class="bi bi-check-lg"></i> Présent</span>';
+        var soldeAvant = parseInt(formElement.dataset.solde);
+        var soldeApres = isNaN(soldeAvant) ? null : soldeAvant - 1;
+        parentDiv.innerHTML = formaterSolde(soldeApres) +
+            '<span class="badge bg-success rounded-pill"><i class="bi bi-check-lg"></i> Présent</span>';
 
         // 5. Mise à jour du compteur en haut (Optionnel mais classe)
         var titleElement = document.getElementById('clientsInscritsTitle');
@@ -309,12 +322,15 @@
 
                     if (client.present) {
                         // CAS 1 : DÉJÀ PRÉSENT (Base de données)
-                        actionHtml = '<span class="badge bg-success rounded-pill"><i class="bi bi-check-lg"></i> Présent</span>';
+                        // Le solde en base est déjà décompté : on l'affiche tel quel à gauche du badge.
+                        actionHtml = formaterSolde(client.solde) +
+                            '<span class="badge bg-success rounded-pill"><i class="bi bi-check-lg"></i> Présent</span>';
                     } else {
                         // CAS 2 : BOUTON (Avec appel AJAX)
                         // Note l'ajout de onsubmit="validerPresenceAjax(...)"
+                        // data-solde permet d'afficher le solde restant après le marquage.
                         actionHtml = `
-                            <form onsubmit="validerPresenceAjax(event, this)" action="/marquer_presence" method="POST" style="margin:0;">
+                            <form onsubmit="validerPresenceAjax(event, this)" action="/marquer_presence" method="POST" style="margin:0;" data-solde="${client.solde}">
                                 <input type="hidden" name="client_id" value="${client.id}">
                                 <input type="hidden" name="date_seance" value="${dateReelle}">
                                 <input type="hidden" name="heure_seance" value="${heure}">
@@ -325,7 +341,7 @@
                         `;
                     }
 
-                    li.innerHTML = nomSpan + '<div>' + actionHtml + '</div>';
+                    li.innerHTML = nomSpan + '<div class="d-flex align-items-center">' + actionHtml + '</div>';
                     clientsList.appendChild(li);
                 });
             } else {

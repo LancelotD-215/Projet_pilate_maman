@@ -104,6 +104,16 @@
         {% block content %}{% endblock %} <!-- Bloc de contenu qui sera remplacé par le contenu spécifique de chaque page -->
     </div>
 
+    {% if session.logged_in %}
+    <!-- Bouton de déconnexion, tout en bas de la page -->
+    <footer class="text-center py-4 mt-5 border-top">
+        <div class="text-muted small mb-2">Connectée en tant que Servane</div>
+        <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-right-from-bracket"></i> Se déconnecter
+        </a>
+    </footer>
+    {% endif %}
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> <!-- Lien vers le JS de Bootstrap -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     

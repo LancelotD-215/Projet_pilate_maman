@@ -1,25 +1,16 @@
 # Principale
 
-## 🔐 Sécurité / Authentification (EN ATTENTE DU GO de Servane)
-Objectif : protéger l'espace admin par un identifiant + mot de passe.
-La borne (`/borne`) doit RESTER PUBLIQUE (les clients pointent eux-mêmes).
-
-Spécifications définies avec Servane :
-- [ ] Compte unique pour Servane. Elle communiquera son **identifiant** par message.
-- [ ] **Première connexion** : elle saisit le mot de passe de son choix, qui devient
-      son seul et unique mot de passe pour le site (stocké en base, **hashé**, jamais en clair).
-- [ ] Connexions suivantes : identifiant + mot de passe.
-- [ ] Case **"Rester connecté"** : si cochée, utilise un cookie persistant pour la
-      reconnaître automatiquement ; si non cochée, session classique (déconnexion à la fermeture).
-- [ ] Dans `layout.html` : ajouter une **fine barre en bas** avec un bouton
-      **"Se déconnecter"** qui déconnecte ET supprime le cookie "rester connecté".
-- [ ] Protéger toutes les routes admin, laisser `/borne` (et sa page succès) accessibles sans login.
-
-Choix techniques validés :
-- Stockage : table `admin` en base (identifiant pré-enregistré, champ mot de passe
-  vide jusqu'à la 1ère connexion où elle le définit).
-- Hash du mot de passe avec `werkzeug.security` (`generate_password_hash` /
-  `check_password_hash`) — déjà inclus avec Flask, rien à installer.
+## 🔐 Sécurité / Authentification (FAIT)
+L'espace admin est protégé par un identifiant + mot de passe.
+La borne (`/borne` et `/borne_succes`) reste PUBLIQUE (les clients pointent eux-mêmes).
+- [x] Page de connexion `/login` (identifiant : `servane`, mot de passe hashé en pbkdf2).
+- [x] Case **"Rester connecté"** : session persistante 30 jours si cochée, sinon session de navigation.
+- [x] Fine barre en bas (`layout.html`) avec bouton **"Se déconnecter"** (`/logout`, vide la session).
+- [x] Protection de toutes les routes admin via `@app.before_request` (liste blanche : login, borne, borne_succes, static).
+- Décision retenue : credentials fixes (pas de flux de 1ère connexion). Mot de passe
+  stocké hashé dans `app.py` (constante `ADMIN_PASSWORD_HASH`).
+- Améliorations possibles plus tard : sortir le SECRET_KEY et le hash dans des
+  variables d'environnement ; déplacer les identifiants dans une table `admin`.
 
 ## Implémentation de la base de données
 - [x] Ajouter la base de données déja existante
@@ -29,6 +20,8 @@ Choix techniques validés :
 - [x] créer le pop up de quand on clique sur une séance pour afficher plus d'infos et pouvoir valider les présences
 - [x] Integrer la gestion client dans l'agenda
 - [x] Validation séances dans l'agenda
+- [x] Afficher le solde restant à gauche du badge "Présent" dans le pop-up de l'agenda
+- [x] Corriger le double-décompte de la borne au rechargement (POST/Redirect/GET + /borne_succes)
 - [ ] Ajout méthode ajout suppression
   - [ ] Ajouter des séances dans l'agenda de manière ponctuelle
   - [ ] Ajouter des séances dans l'agenda de manière definitive

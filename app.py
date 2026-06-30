@@ -10,8 +10,9 @@ date : 2026/01/20
 
 # imports des modules
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, make_response
+from flask import Flask, render_template, request, redirect, url_for, make_response, session
 from datetime import datetime, timedelta
+from werkzeug.security import check_password_hash
 from app_lib import client_not_comming, get_db_connection, get_best_clients, get_client_most_remaining, get_number_seances, get_negative_seances_clients, get_zero_clients
 import pytz
 import os
@@ -20,8 +21,34 @@ import os
 app = Flask(__name__) # création du site web
 app.config['SECRET_KEY'] = 'xcbxf0xfaZxedxb29xbaxdcx19xccxf2x11x01xcc2x13xff7x94px14xf1'
 
+# durée de vie de la session si "Rester connecté" est coché
+app.permanent_session_lifetime = timedelta(days=30)
+
 # récupération de l'heure de paris
 paris_tz = pytz.timezone('Europe/Paris')
+
+
+# --- AUTHENTIFICATION ---
+# identifiant et mot de passe (hashé) de l'administratrice
+ADMIN_USERNAME = 'servane'
+ADMIN_PASSWORD_HASH = 'pbkdf2:sha256:1000000$tMYspdsLckEdJMMV$143b828ba4c711efb9e176cf5435bd443849242904d7c54a51997b6a23324c76'
+
+# pages accessibles SANS être connecté (la borne reste publique pour les clients)
+PUBLIC_ENDPOINTS = {'login', 'borne', 'borne_succes', 'static'}
+
+
+@app.before_request
+def require_login():
+    """
+    Avant chaque requête, on vérifie que l'utilisateur est connecté,
+    sauf pour les pages publiques (borne, page de connexion, fichiers statiques).
+    """
+    # on laisse passer les pages publiques et les requêtes sans endpoint (404)
+    if request.endpoint in PUBLIC_ENDPOINTS or request.endpoint is None:
+        return
+    # sinon, connexion obligatoire
+    if not session.get('logged_in'):
+        return redirect(url_for('login', next=request.path))
 
 
 @app.template_filter('format_datetime')
@@ -52,6 +79,54 @@ def format_datetime(value, format="%d/%m/%Y à %H:%M"):
 
 
 # création des routes pour le site web (pages)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """
+    Page de connexion à l'espace d'administration.
+    Args:
+        None
+    Returns:
+        str: rendu HTML de la page de connexion, ou redirection si succès.
+    """
+    # si déjà connecté, on redirige vers l'accueil
+    if session.get('logged_in'):
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        remember = request.form.get('remember')  # case "Rester connecté"
+
+        # vérification de l'identifiant et du mot de passe
+        if username.lower() == ADMIN_USERNAME and check_password_hash(ADMIN_PASSWORD_HASH, password):
+            session['logged_in'] = True
+            # "Rester connecté" => session persistante (cookie 30 jours), sinon session de navigation
+            session.permanent = bool(remember)
+
+            # redirection vers la page demandée initialement (en restant sur le site)
+            next_url = request.args.get('next')
+            if next_url and next_url.startswith('/') and not next_url.startswith('//'):
+                return redirect(next_url)
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', erreur="Identifiant ou mot de passe incorrect.")
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+    """
+    Déconnexion : vide la session et supprime le cookie de connexion.
+    Args:
+        None
+    Returns:
+        str: redirection vers la page de connexion.
+    """
+    session.clear()
+    return redirect(url_for('login'))
+
+
 @app.route('/')
 def index():
     """
@@ -501,7 +576,7 @@ def planning():
 
     # 2. Habitudes (Qui est censé venir ?)
     habitudes_data = connection.execute('''
-        SELECT h.creneau_id, c.id as client_id, c.prenom, c.nom
+        SELECT h.creneau_id, c.id as client_id, c.prenom, c.nom, c.seances_restantes
         FROM habitudes h
         JOIN clients c ON h.client_id = c.id
     ''').fetchall()
@@ -528,7 +603,8 @@ def planning():
             clients_par_creneau[cid] = []
         clients_par_creneau[cid].append({
             'id': h['client_id'],
-            'nom': f"{h['prenom']} {h['nom']}"
+            'nom': f"{h['prenom']} {h['nom']}",
+            'solde': h['seances_restantes']
         })
 
     # B. Créer un set de présence pour vérification rapide
@@ -613,7 +689,8 @@ def planning():
                 final_clients.append({
                     'id': cl['id'],
                     'nom': cl['nom'],
-                    'present': is_present
+                    'present': is_present,
+                    'solde': cl['solde']
                 })
 
             creneaux_jour_processed.append({
@@ -826,18 +903,20 @@ def borne():
             connection.commit()
             connection.close()
 
-            # gestion des cookies
-            response = make_response(render_template('borne_succes.html', prenom=prenom, solde=nouveau_solde))
+            # On stocke le résultat en session puis on REDIRIGE vers la page de succès.
+            # (Schéma POST/Redirect/GET : empêche le re-décompte si le client recharge la page.)
+            session['borne_succes'] = {'prenom': prenom, 'solde': nouveau_solde}
 
-            # on enregistre le cookis pour 60 jours
+            response = make_response(redirect(url_for('borne_succes')))
+
+            # on enregistre le cookie pour 60 jours
             max_age = 60 * 24 * 60 * 60 # 60 jours en secondes
             response.set_cookie('borne_id', str(client_id), max_age=max_age)
             response.set_cookie('borne_prenom', prenom, max_age=max_age)
             response.set_cookie('borne_nom', nom, max_age=max_age)
 
-            # On renvoie vers une page de succès avec les infos
             return response
-        
+
         else:
             connection.close()
             # On renvoie l'erreur ET les infos du cookie pour que la pop-up puisse se ré-ouvrir
@@ -853,6 +932,29 @@ def borne():
                            id_cookie=id_cookie,
                            prenom_cookie=prenom_cookie,
                            nom_cookie=nom_cookie)
+
+
+
+
+@app.route('/borne_succes')
+def borne_succes():
+    """
+    Page de confirmation affichée après un pointage à la borne.
+    Lit le résultat depuis la session (et le retire, pour qu'un rechargement
+    ne re-décompte pas de séance et n'affiche pas une info périmée).
+    Args:
+        None
+    Returns:
+        str: rendu HTML de la page de succès, ou redirection vers la borne.
+    """
+    # on récupère ET on supprime les infos de la session (usage unique)
+    data = session.pop('borne_succes', None)
+
+    # si on arrive ici sans pointage récent (rechargement, accès direct), retour à la borne
+    if not data:
+        return redirect(url_for('borne'))
+
+    return render_template('borne_succes.html', prenom=data['prenom'], solde=data['solde'])
 
 
 

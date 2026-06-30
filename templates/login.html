@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion — Gestion Studio S'</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='studioSfavicon.png') }}">
+    <style>
+        body { background-color: #f8f9fa; display: flex; align-items: center; height: 100vh; }
+        .card-login { width: 100%; max-width: 420px; margin: auto; padding: 25px; border-radius: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card card-login shadow-lg bg-white">
+            <div class="text-center mb-4">
+                <img src="{{ url_for('static', filename='logo-studio-s-pilates-1x.png') }}" alt="Logo StudioS" height="55">
+            </div>
+
+            <h4 class="text-center mb-4">Espace de gestion</h4>
+
+            {% if erreur %}
+                <div class="alert alert-danger text-center py-2">{{ erreur }}</div>
+            {% endif %}
+
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Identifiant</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input type="text" name="username" id="username" class="form-control" placeholder="Identifiant" required autofocus>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Mot de passe</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                        <input type="password" name="password" id="password" class="form-control" placeholder="Mot de passe" required>
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1" aria-label="Afficher le mot de passe">
+                            <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" name="remember" id="remember" value="1">
+                    <label class="form-check-label" for="remember">Rester connecté</label>
+                </div>
+
+                <button type="submit" class="btn btn-pink-logo text-white w-100 py-2 fw-bold">Se connecter</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Bouton oeil : affiche/masque le mot de passe
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            var input = document.getElementById('password');
+            var icon = document.getElementById('togglePasswordIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    </script>
+</body>
+</html>
